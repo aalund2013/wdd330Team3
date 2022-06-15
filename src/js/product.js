@@ -1,5 +1,5 @@
-import ProductData from "./productData.js"
-import ProductDetails from "./productDetails.js"
+import ProductData from "./productData.js";
+import ProductDetails from "./productDetails.js";
 
 import { getParam } from "./utils.js";
 
@@ -31,4 +31,3 @@ function getCartData() {
 // }
 
 getCartData();
-
