@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sleep Outside | Cedar Ridge Rimrock 2-person tent</title>
     <link rel="stylesheet" href="../css/style.css" />
-    <script src="../js/product.js" type="module" defer></script>
+    <script src="../js/product.js" type="module" defer>document.getElementById("product-detail").innerHTML = product;</script>
   </head>
   <body>
     <header class="divider">
@@ -43,7 +43,7 @@
     </header>
     <main class="divider">
       <section class="product-detail">
-        <!-- <h3>Cedar Ridge</h3>
+        <h3>Cedar Ridge</h3>
         <h2 class="divider">Rimrock Tent - 2-Person, 3-Season</h2>
         <img
           class="divider"
@@ -60,12 +60,8 @@
         </p>
         <div class="product-detail__add">
           <button id="addToCart" data-id="344YJ">Add to Cart</button>
-        </div> -->
+        </div>
       </section>
-      <script src="../js/productDetails.js">
-        var oneProduct = document.getElementsByClassName("product-detail")[0];
-            oneProduct.outerHTML = renderProductDetails();
-      </script>
     </main>
     <footer>&copy;NOT a real business</footer>
   </body>
