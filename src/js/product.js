@@ -1,45 +1,36 @@
-let products = [];
-let cart = [];
-function convertToJson(res) {
-  if (res.ok) {
-    return res.json();
-  } else {
-    throw new Error("Bad Response");
-  }
-}
+import ProductData from "./productData.js";
+import ProductDetails from "./productDetails.js";
 
-function setLocalStorage(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
+import { getParam } from "./utils.js";
+import { getCartContents } from "./cart.js";
 
-function getLocalStorage(key) {
-  return JSON.parse(localStorage.getItem(key));
-}
+const dataSource = new ProductData("tents");
+const productId = getParam("product");
+const cart = getCartContents;
 
-function getCartData() {
-  cart = getLocalStorage("so-cart") || [];
-}
-// get tents data
-function getProductsData() {
-  fetch("../json/tents.json")
-    .then(convertToJson)
-    .then((data) => {
-      products = data;
-    });
-}
-// or should we do it this way?
-// async function getProductsDataAwait() {
-//   products = await fetch("../json/tents.json").then(convertToJson);
+const product = new ProductDetails(productId, dataSource);
+product.init();
+
+// let products = [];
+// let cart = [];
+
+// function setLocalStorage(key, data) {
+//   localStorage.setItem(key, JSON.stringify(data));
 // }
 
-// add to cart button event handler
-function addToCart(e) {
-  const product = products.find((item) => item.Id === e.target.dataset.id);
-  cart.push(product);
-  setLocalStorage("so-cart", cart);
-}
+// function getLocalStorage(key) {
+//   return JSON.parse(localStorage.getItem(key));
+// }
 
-getProductsData();
-getCartData();
-// add listener to Add to Cart button
-document.getElementById("addToCart").addEventListener("click", addToCart);
+// function getCartData() {
+//   return getLocalStorage("so-cart") || [];
+// }
+
+// // add to cart button event handler
+// function addToCart(e) {
+//   const product = products.find((item) => item.Id === e.target.dataset.id);
+//   cart.push(product);
+//   setLocalStorage("so-cart", cart);
+// }
+
+// getCartData();
