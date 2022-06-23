@@ -32,6 +32,6 @@ export default class ProductList {
       this.listElement,
       list,
       this.prepareTemplate
-    )
+    );
   }
 }
