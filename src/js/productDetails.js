@@ -1,4 +1,6 @@
-import { setLocalStorage } from "./utils.js";
+import { setLocalStorage, getLocalStorage, loadHeaderFooter } from "./utils.js";
+
+loadHeaderFooter();
 
 export default class ProductDetails {
   constructor(productId, dataSource) {
@@ -6,17 +8,26 @@ export default class ProductDetails {
     this.product = {};
     this.dataSource = dataSource;
   }
+
   async init() {
     this.product = await this.dataSource.findProductById(this.productId);
+    // console.log(this.product) RETURNING UNDEFINED
     document.querySelector("main").innerHTML = this.renderProductDetails();
     // add listener to Add to Cart button
     document
       .getElementById("addToCart")
       .addEventListener("click", this.addToCart.bind(this));
   }
+
   addToCart() {
-    setLocalStorage("so-cart", this.product);
+    let cartContents = getLocalStorage("so-cart") || [];
+    // console.log(cartContents, getLocalStorage("so-cart"))
+    // if(!cartContents){
+    //   cartContents = [];
+    cartContents.push(this.product);
+    setLocalStorage("so-cart", cartContents);
   }
+
   renderProductDetails() {
     return `<section class="product-detail"> <h3>${this.product.Brand.Name}</h3>
     <h2 class="divider">${this.product.NameWithoutBrand}</h2>
