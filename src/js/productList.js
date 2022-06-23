@@ -32,12 +32,6 @@ export default class ProductList {
       this.listElement,
       list,
       this.prepareTemplate
-    );
+    )
   }
-
-  // filterList(list) {
-  //   list.forEach(item => {
-  //     if list.item
-  //   })
-  // }
 }
