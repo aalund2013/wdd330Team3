@@ -1,4 +1,4 @@
-const baseURL = 'http://157.201.228.93:2992/'
+const baseURL = "http://157.201.228.93:2992/";
 
 function convertToJson(res) {
   if (res.ok) {
@@ -9,15 +9,16 @@ function convertToJson(res) {
 }
 
 export default class ProductData {
-  constructor() {
-  }
+  constructor() {}
 
   getData(category) {
     return fetch(baseURL + `products/search/${category}`)
-                .then(convertToJson).then((data) => data.Result);
+      .then(convertToJson)
+      .then((data) => data.Result);
   }
   async findProductById(id) {
-    return await fetch(baseURL + `product/${id}`).then(convertToJson).then((data) => data.Result);
-    
+    return await fetch(baseURL + `product/${id}`)
+      .then(convertToJson)
+      .then((data) => data.Result);
   }
 }
