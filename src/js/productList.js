@@ -7,14 +7,15 @@ export default class ProductList {
     this.dataSource = dataSource;
   }
   async init() {
-    const list = await this.dataSource.getData();
+    const list = await this.dataSource.getData(this.category);
     // console.log(list)
     this.renderList(list);
+    document.querySelector(".title").innerHTML = this.category;
   }
 
   prepareTemplate(template, product) {
     template.querySelector("a").href += product.Id;
-    template.querySelector("img").src = product.Image;
+    template.querySelector("img").src = product.Images.PrimaryMedium;
     template.querySelector("img").alt += product.Name;
     template.querySelector(".card__brand").textContent = product.Brand.Name;
     template.querySelector(".card__name").textContent =
