@@ -230,3 +230,13 @@ footer {
   font-size: var(--small-font);
   padding: 1em;
 }
+
+.cart-Total {
+  visibility: hidden;
+  text-align: right;
+  padding-right: 150px;
+}
+
+.checkoutSummary li {
+  list-style-type: none;
+}
