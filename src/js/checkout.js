@@ -3,7 +3,7 @@ import { loadHeaderFooter } from "./utils.js";
 
 loadHeaderFooter();
 
-const myCheckout = new CheckoutProcess("so-cart", ".checkout-summary");
+const myCheckout = new CheckoutProcess("so-cart", ".checkoutSummary");
 myCheckout.init();
 
 document
