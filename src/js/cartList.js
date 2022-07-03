@@ -10,18 +10,18 @@ export default class CartList {
     const list = getLocalStorage(this.key);
     this.renderList(list);
   }
-  
+
   prepareTemplate(template, product) {
     template.querySelector(".cart-card__image img").src = product.Image;
     template.querySelector(".cart-card__image img").alt += product.Name;
     template.querySelector(".card__name").textContent = product.Name;
     template.querySelector(".cart-card__color").textContent =
-    product.Colors[0].ColorName;
+      product.Colors[0].ColorName;
     template.querySelector(".cart-card__price").textContent +=
-    product.FinalPrice;
+      product.FinalPrice;
     return template;
   }
-  
+
   renderList(list) {
     this.listElement.innerHTML = "";
     const template = document.getElementById("cart-card-template");
@@ -30,18 +30,20 @@ export default class CartList {
       this.listElement,
       list,
       this.prepareTemplate
+    );
+    if (list !== null) {
+      document.querySelector(".cartTotal").style.visibility = "visible";
+      document.querySelector(".cartTotal").textContent += this.calculateTotal(
+        list
       );
-      if (list !== null) { 
-        document.querySelector(".cartTotal").style.visibility = "visible";
-        document.querySelector(".cartTotal").textContent += this.calculateTotal(list)
-      };
     }
+  }
 
-    calculateTotal(list) {
-      var total = 0.00
-      list.forEach((item) => {
-        total = total + item.FinalPrice
-      });
-      return total
-    }
+  calculateTotal(list) {
+    var total = 0.0;
+    list.forEach((item) => {
+      total = total + item.FinalPrice;
+    });
+    return total;
+  }
 }

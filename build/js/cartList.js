@@ -1,47 +1,49 @@
-var n = (s, e, t) =>
-  new Promise((l, c) => {
-    var o = (r) => {
-        try {
-          a(t.next(r));
-        } catch (i) {
-          c(i);
-        }
-      },
-      m = (r) => {
-        try {
-          a(t.throw(r));
-        } catch (i) {
-          c(i);
-        }
-      },
-      a = (r) => (r.done ? l(r.value) : Promise.resolve(r.value).then(o, m));
-    a((t = t.apply(s, e)).next());
-  });
-import { renderListWithTemplate as _, getLocalStorage as y } from "./utils.js";
-export default class d {
-  constructor(e, t) {
-    (this.key = e), (this.listElement = t);
+import { renderListWithTemplate, getLocalStorage } from "./utils.js";
+
+export default class CartList {
+  constructor(key, listElement) {
+    this.key = key;
+    this.listElement = listElement;
   }
-  init() {
-    return n(this, null, function* () {
-      const e = y(this.key);
-      this.renderList(e);
-    });
+
+  async init() {
+    const list = getLocalStorage(this.key);
+    this.renderList(list);
   }
-  prepareTemplate(e, t) {
-    return (
-      (e.querySelector(".cart-card__image img").src = t.Image),
-      (e.querySelector(".cart-card__image img").alt += t.Name),
-      (e.querySelector(".card__name").textContent = t.Name),
-      (e.querySelector(".cart-card__color").textContent =
-        t.Colors[0].ColorName),
-      (e.querySelector(".cart-card__price").textContent += t.FinalPrice),
-      e
-    );
+
+  prepareTemplate(template, product) {
+    template.querySelector(".cart-card__image img").src = product.Image;
+    template.querySelector(".cart-card__image img").alt += product.Name;
+    template.querySelector(".card__name").textContent = product.Name;
+    template.querySelector(".cart-card__color").textContent =
+      product.Colors[0].ColorName;
+    template.querySelector(".cart-card__price").textContent +=
+      product.FinalPrice;
+    return template;
   }
-  renderList(e) {
+
+  renderList(list) {
     this.listElement.innerHTML = "";
-    const t = document.getElementById("cart-card-template");
-    _(t, this.listElement, e, this.prepareTemplate);
+    const template = document.getElementById("cart-card-template");
+    renderListWithTemplate(
+      template,
+      this.listElement,
+      list,
+      this.prepareTemplate
+    );
+    if (list !== null) {
+      document.querySelector(".cartTotal").style.visibility = "visible";
+      document.querySelector(".cartTotal").textContent += this.calculateTotal(
+        list
+      );
+    }
+  }
+
+  calculateTotal(list) {
+    var total = 0.0;
+    list.forEach((item) => {
+      total = total + item.FinalPrice;
+    });
+    return total;
   }
 }
