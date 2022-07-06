@@ -1,4 +1,9 @@
-import { setLocalStorage, getLocalStorage, loadHeaderFooter } from "./utils.js";
+import {
+  setLocalStorage,
+  getLocalStorage,
+  loadHeaderFooter,
+  alertMessage,
+} from "./utils.js";
 
 loadHeaderFooter();
 
@@ -20,12 +25,14 @@ export default class ProductDetails {
   }
 
   addToCart() {
-    let cartContents = getLocalStorage("so-cart") || [];
+    let cartContents = getLocalStorage("so-cart");
     // console.log(cartContents, getLocalStorage("so-cart"))
-    // if(!cartContents){
-    //   cartContents = [];
+    if (!cartContents) {
+      cartContents = [];
+    }
     cartContents.push(this.product);
     setLocalStorage("so-cart", cartContents);
+    alertMessage(`${this.product.NameWithoutBrand} added to cart!`);
   }
 
   renderProductDetails() {
