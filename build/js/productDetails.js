@@ -1,53 +1,39 @@
-var s = (i, d, r) =>
-  new Promise((e, c) => {
-    var u = (t) => {
-        try {
-          o(r.next(t));
-        } catch (a) {
-          c(a);
-        }
-      },
-      p = (t) => {
-        try {
-          o(r.throw(t));
-        } catch (a) {
-          c(a);
-        }
-      },
-      o = (t) => (t.done ? e(t.value) : Promise.resolve(t.value).then(u, p));
-    o((r = r.apply(i, d)).next());
-  });
-import {
-  setLocalStorage as l,
-  getLocalStorage as n,
-  loadHeaderFooter as h,
-} from "./utils.js";
-h();
-export default class m {
-  constructor(d, r) {
-    (this.productId = d), (this.product = {}), (this.dataSource = r);
+import { setLocalStorage, getLocalStorage, loadHeaderFooter } from "./utils.js";
+
+loadHeaderFooter();
+
+export default class ProductDetails {
+  constructor(productId, dataSource) {
+    this.productId = productId;
+    this.product = {};
+    this.dataSource = dataSource;
   }
-  init() {
-    return s(this, null, function* () {
-      (this.product = yield this.dataSource.findProductById(this.productId)),
-        (document.querySelector(
-          "main"
-        ).innerHTML = this.renderProductDetails()),
-        document
-          .getElementById("addToCart")
-          .addEventListener("click", this.addToCart.bind(this));
-    });
+
+  async init() {
+    this.product = await this.dataSource.findProductById(this.productId);
+    // console.log(this.product) RETURNING UNDEFINED
+    document.querySelector("main").innerHTML = this.renderProductDetails();
+    // add listener to Add to Cart button
+    document
+      .getElementById("addToCart")
+      .addEventListener("click", this.addToCart.bind(this));
   }
+
   addToCart() {
-    let d = n("so-cart") || [];
-    d.push(this.product), l("so-cart", d);
+    let cartContents = getLocalStorage("so-cart") || [];
+    // console.log(cartContents, getLocalStorage("so-cart"))
+    // if(!cartContents){
+    //   cartContents = [];
+    cartContents.push(this.product);
+    setLocalStorage("so-cart", cartContents);
   }
+
   renderProductDetails() {
     return `<section class="product-detail"> <h3>${this.product.Brand.Name}</h3>
     <h2 class="divider">${this.product.NameWithoutBrand}</h2>
     <img
       class="divider"
-      src="${this.product.Image}"
+      src="${this.product.Images.PrimaryLarge}"
       alt="${this.product.NameWithoutBrand}"
     />
     <p class="product-card__price">$${this.product.FinalPrice}</p>

@@ -1,71 +1,75 @@
-var s = (t, n, e) =>
-  new Promise((o, r) => {
-    var c = (a) => {
-        try {
-          l(e.next(a));
-        } catch (d) {
-          r(d);
-        }
-      },
-      i = (a) => {
-        try {
-          l(e.throw(a));
-        } catch (d) {
-          r(d);
-        }
-      },
-      l = (a) => (a.done ? o(a.value) : Promise.resolve(a.value).then(c, i));
-    l((e = e.apply(t, n)).next());
+function convertToText(res) {
+  if (res.ok) {
+    return res.text();
+  } else {
+    throw new Error("Bad Response");
+  }
+}
+// wrapper for querySelector...returns matching element
+export function qs(selector) {
+  return document.querySelector(selector);
+}
+// or a more concise version if you are into that sort of thing:
+// export const qs = (selector, parent = document) => parent.querySelector(selector);
+
+// retrieve data from localStorage
+export function getLocalStorage(key) {
+  return JSON.parse(localStorage.getItem(key));
+}
+// save data to local storage
+export function setLocalStorage(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+// set a listener for both touchend and click
+export function setClick(selector, callback) {
+  qs(selector).addEventListener("touchend", (event) => {
+    event.preventDefault();
+    callback();
   });
-function u(t) {
-  if (t.ok) return t.text();
-  throw new Error("Bad Response");
+  qs(selector).addEventListener("click", callback);
 }
-export function qs(t) {
-  return document.querySelector(t);
+
+// retrieve params from URL
+export function getParam(param) {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const product = urlParams.get(param);
+  return product;
 }
-export function getLocalStorage(t) {
-  return JSON.parse(localStorage.getItem(t));
-}
-export function setLocalStorage(t, n) {
-  localStorage.setItem(t, JSON.stringify(n));
-}
-export function setClick(t, n) {
-  qs(t).addEventListener("touchend", (e) => {
-    e.preventDefault(), n();
-  }),
-    qs(t).addEventListener("click", n);
-}
-export function getParam(t) {
-  const n = window.location.search,
-    e = new URLSearchParams(n),
-    o = e.get(t);
-  return o;
-}
-export function renderListWithTemplate(t, n, e, o) {
-  e.forEach((r) => {
-    const c = t.content.cloneNode(!0),
-      i = o(c, r);
-    n.appendChild(i);
-  });
-}
-export function renderWithTemplate(t, n, e, o) {
-  let r = t.content.cloneNode(!0);
-  o && (r = o(r, e)), n.appendChild(r);
-}
-export function loadTemplate(t) {
-  return s(this, null, function* () {
-    const n = yield fetch(t).then(u),
-      e = document.createElement("template");
-    return (e.innerHTML = n), e;
+
+export function renderListWithTemplate(
+  template,
+  parentElement,
+  list,
+  callback
+) {
+  list.forEach((item) => {
+    const clone = template.content.cloneNode(true);
+    const templateWithData = callback(clone, item);
+    parentElement.appendChild(templateWithData);
   });
 }
-export function loadHeaderFooter() {
-  return s(this, null, function* () {
-    const t = yield loadTemplate("../partials/header.html"),
-      n = yield loadTemplate("../partials/footer.html"),
-      e = document.getElementById("main-header"),
-      o = document.getElementById("main-footer");
-    renderWithTemplate(t, e), renderWithTemplate(n, o);
-  });
+
+export function renderWithTemplate(template, parentElement, data, callback) {
+  let clone = template.content.cloneNode(true);
+  if (callback) {
+    clone = callback(clone, data);
+  }
+  parentElement.appendChild(clone);
+}
+
+export async function loadTemplate(path) {
+  const html = await fetch(path).then(convertToText);
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  return template;
+}
+
+export async function loadHeaderFooter() {
+  const header = await loadTemplate("../partials/header.html");
+  const footer = await loadTemplate("../partials/footer.html");
+  const headEl = document.getElementById("main-header");
+  const footEl = document.getElementById("main-footer");
+  renderWithTemplate(header, headEl);
+  renderWithTemplate(footer, footEl);
 }

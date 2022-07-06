@@ -31,5 +31,19 @@ export default class CartList {
       list,
       this.prepareTemplate
     );
+    if (list !== null) {
+      document.querySelector(".cartTotal").style.visibility = "visible";
+      document.querySelector(".cartTotal").textContent += this.calculateTotal(
+        list
+      );
+    }
+  }
+
+  calculateTotal(list) {
+    var total = 0.0;
+    list.forEach((item) => {
+      total = total + item.FinalPrice;
+    });
+    return total;
   }
 }
