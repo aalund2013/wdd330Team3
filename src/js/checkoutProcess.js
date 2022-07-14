@@ -1,94 +1,136 @@
-import { getLocalStorage } from "./utils.js";
-import ExternalServices from "./externalServices.js";
-
-const services = new ExternalServices();
-function formDataToJSON(formElement) {
-  const formData = new FormData(formElement),
-    convertedJSON = {};
-
-  formData.forEach(function (value, key) {
-    convertedJSON[key] = value;
-  });
-
-  return convertedJSON;
-}
+import {
+  getLocalStorage,
+  getTotal,
+  setLocalStorage,
+  renderWithTemplate,
+} from "./utils";
+import ExternalServices from "./externalServices";
 
 function packageItems(items) {
-  const simplifiedItems = items.map((item) => {
-    console.log(item);
-    return {
-      id: item.Id,
-      price: item.FinalPrice,
-      name: item.Name,
-      quantity: 1,
-    };
+  const newArray = items.map((product) => {
+    const newProduct = {};
+
+    newProduct.id = product.Id;
+    newProduct.name = product.Name;
+    newProduct.price = product.FinalPrice;
+    newProduct.quantity = product.count;
+
+    return newProduct;
   });
-  return simplifiedItems;
+
+  return newArray;
 }
 
 export default class CheckoutProcess {
-  constructor(key, outputSelector) {
+  constructor(key) {
     this.key = key;
-    this.outputSelector = outputSelector;
     this.list = [];
+    this.numbOfItems = 0;
     this.itemTotal = 0;
     this.shipping = 0;
     this.tax = 0;
     this.orderTotal = 0;
   }
+
   init() {
     this.list = getLocalStorage(this.key);
-    this.calculateItemSummary();
-  }
-  calculateItemSummary() {
-    const summaryElement = document.querySelector(
-      this.outputSelector + " #cartTotal"
-    );
-    const itemNumElement = document.querySelector(
-      this.outputSelector + " #num-items"
-    );
-    itemNumElement.innerText = this.list.length;
-    // calculate the total of all the items in the cart
-    const amounts = this.list.map((item) => item.FinalPrice);
-    this.itemTotal = amounts.reduce((sum, item) => sum + item);
-    summaryElement.innerText = "$" + this.itemTotal;
-  }
-  calculateOrderTotal() {
-    this.shipping = 10 + (this.list.length - 1) * 2;
-    this.tax = (this.itemTotal * 0.06).toFixed(2);
-    this.orderTotal = (
-      parseFloat(this.itemTotal) +
-      parseFloat(this.shipping) +
-      parseFloat(this.tax)
-    ).toFixed(2);
-    this.displayOrderTotals();
-  }
-  displayOrderTotals() {
-    const shipping = document.querySelector(this.outputSelector + " #shipping");
-    const tax = document.querySelector(this.outputSelector + " #tax");
-    const orderTotal = document.querySelector(
-      this.outputSelector + " #orderTotal"
-    );
-    shipping.innerText = "$" + this.shipping;
-    tax.innerText = "$" + this.tax;
-    orderTotal.innerText = "$" + this.orderTotal;
-  }
-  async checkout() {
-    const formElement = document.forms["checkout"];
+    this.subtotal();
 
-    const json = formDataToJSON(formElement);
-    // add totals, and item details
-    json.orderDate = new Date();
-    json.orderTotal = this.orderTotal;
-    json.tax = this.tax;
-    json.shipping = this.shipping;
-    json.items = packageItems(this.list);
-    // console.log(json);
-    try {
-      const res = await services.checkout(json);
-      console.log(res);
-    } catch (err) {
-      console.log(err);
+    document.querySelector("#checkout-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      this.checkout(e.target);
+    });
+  }
+
+  subtotal() {
+    const [totalAmount, totalInCart] = getTotal();
+
+    this.numbOfItems = totalInCart;
+    this.itemTotal = totalAmount;
+
+    document.querySelector("#items-number").innerHTML = this.numbOfItems;
+    document.querySelector(".cart-subtotal").innerHTML = `$${parseFloat(
+      this.itemTotal
+    ).toFixed(2)}`;
+
+    this.finalTotal();
+  }
+
+  finalTotal() {
+    document.querySelector("#zip-code").addEventListener("change", () => {
+      this.shipping = 10 + (this.numbOfItems - 1) * 2;
+      this.tax = this.itemTotal * 0.06;
+      this.orderTotal = this.itemTotal + this.shipping + this.tax;
+
+      this.displayTotal();
+    });
+  }
+
+  displayTotal() {
+    document.querySelector("#shipping").innerHTML = `$${parseFloat(
+      this.shipping
+    ).toFixed(2)}`;
+    document.querySelector("#tax").innerHTML = `$${parseFloat(this.tax).toFixed(
+      2
+    )}`;
+    document.querySelector("#final-total").innerHTML = `$${parseFloat(
+      this.orderTotal
+    ).toFixed(2)}`;
+  }
+
+  async checkout(form) {
+    // build the data object from the calculated fields, the items in the cart, and the information entered into the form
+    const formObj = new FormData(form);
+    const currentDate = new Date();
+    const formJSON = {}; //I will turn Form Data to JSON.
+    const simplifiedItems = packageItems(this.list); // Simplified list.
+
+    for (let key of formObj.keys()) {
+      formJSON[key] = formObj.get(key);
     }
+
+    formJSON.orderDate = currentDate; // Adding date and simplified list to JSON.
+    formJSON.items = simplifiedItems;
+
+    // call the checkout method in our ExternalServices module and send it our data object.
+
+    try {
+      const external = new ExternalServices();
+      const orderInfo = await external.checkout(formJSON);
+      setLocalStorage(this.key, []);
+      document.getElementById("checkout-form").reset();
+
+      window.location.assign(`../checkedout/?orderID=${orderInfo.orderId}`);
+    } catch (err) {
+      const error = await err.message;
+
+      for (let key of Object.keys(error)) {
+        const errormessage = error[key];
+        this.render(errormessage);
+      }
+    }
+  }
+
+  render(error) {
+    const template = document.getElementById("checkout-alert");
+    const parent = document.querySelector(".parent-alert");
+    renderWithTemplate(template, parent, error, this.prepareTemplate);
+    const errorClass = error.replace(/\s/g, "");
+    document.querySelector(`.${errorClass}`).addEventListener("click", () => {
+      document.querySelector(`#${errorClass}`).remove();
+    });
+  }
+
+  prepareTemplate(template, error) {
+    template.querySelector(".error-type").innerHTML = error;
+    template.querySelector(".alertparenttemplate").id = error.replace(
+      /\s/g,
+      ""
+    );
+    template
+      .querySelector("#error-button")
+      .classList.add(error.replace(/\s/g, ""));
+
+    return template;
   }
 }

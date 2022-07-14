@@ -1,17 +1,8 @@
+import { loadHeaderFooter } from "./utils";
 import CheckoutProcess from "./checkoutProcess.js";
-import { loadHeaderFooter } from "./utils.js";
 
 loadHeaderFooter();
 
-const myCheckout = new CheckoutProcess("so-cart", ".checkoutSummary");
-myCheckout.init();
+const checkingOut = new CheckoutProcess("so-cart");
 
-document
-  .querySelector("#zip")
-  .addEventListener("blur", myCheckout.calculateOrderTotal.bind(myCheckout));
-// listening for click on the button
-document.querySelector("#checkoutSubmit").addEventListener("click", (e) => {
-  e.preventDefault();
-
-  myCheckout.checkout();
-});
+checkingOut.init();
