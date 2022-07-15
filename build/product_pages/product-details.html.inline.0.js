@@ -1,3 +1,1 @@
-
-      document.getElementById("product-detail").innerHTML = product;
-    
+document.getElementById("product-detail").innerHTML = product;

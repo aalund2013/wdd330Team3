@@ -52,7 +52,7 @@ function loginForm() {
   <legend>Login</legend>
   <p>
     <label for="email">Email</label>
-    <input type="text" placeholder="email" id="email" value="user1@email.com"/>
+    <input type="text" placeholder="email" id="email"/>
   </p>
   <p>
     <label for="password">Password</label>
