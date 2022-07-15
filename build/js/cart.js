@@ -1,7 +1,1 @@
-import { loadHeaderFooter } from "./utils.js";
-import CartList from "./cartList.js";
-
-loadHeaderFooter();
-
-const cart = new CartList("so-cart", document.querySelector(".product-list"));
-cart.init();
+import{loadHeaderFooter as t,totalToPage as o}from"./utils.js";import r from"./cartList.js";t();const a=new r("so-cart",document.querySelector(".product-list"));a.init(),window.onload=o;
