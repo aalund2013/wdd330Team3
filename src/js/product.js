@@ -1,12 +1,12 @@
 import ExternalServices from "./externalServices.js";
 import ProductDetails from "./productDetails.js";
+import { getParams } from "./utils.js";
+import { loadHeaderFooter } from "./utils.js";
 
-import { getParam } from "./utils.js";
-// import { getCartContents } from "./cart.js";
+loadHeaderFooter();
 
-const dataSource = new ExternalServices();
-const productId = getParam("product");
-// const cart = getCartContents;
+const product = new ExternalServices("tents");
+const productId = getParams("product");
 
-const product = new ProductDetails(productId, dataSource);
-product.init();
+const productD = new ProductDetails(productId, product);
+productD.init();
